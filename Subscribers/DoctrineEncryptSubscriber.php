@@ -185,7 +185,9 @@ class DoctrineEncryptSubscriber implements EventSubscriber {
         $className = get_class($entity);
         $metadata = $em->getClassMetadata($className);
         $getter = 'get' . self::capitalize($metadata->getIdentifier());
-
+        if(!method_exists($entity, $getter)){
+            return false;
+        }
         return isset($this->decodedRegistry[$className][$entity->$getter()]);
     }
 
