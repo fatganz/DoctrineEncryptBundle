@@ -79,6 +79,9 @@ class DoctrineEncryptSubscriber implements EventSubscriber {
      */
     public function preUpdate(PreUpdateEventArgs $args) {
         $reflectionClass = new ReflectionClass($args->getEntity());
+        if($reflectionClass->implementsInterface(\Doctrine\ORM\Proxy\Proxy::class)) {
+            $reflectionClass = $reflectionClass->getParentClass();
+        }
         $properties = $reflectionClass->getProperties();
         foreach ($properties as $refProperty) {
             if ($this->annReader->getPropertyAnnotation($refProperty, self::ENCRYPTED_ANN_NAME)) {
@@ -135,6 +138,9 @@ class DoctrineEncryptSubscriber implements EventSubscriber {
     private function processFields($entity, $isEncryptOperation = true) {
         $encryptorMethod = $isEncryptOperation ? 'encrypt' : 'decrypt';
         $reflectionClass = new ReflectionClass($entity);
+        if($reflectionClass->implementsInterface(\Doctrine\ORM\Proxy\Proxy::class)) {
+            $reflectionClass = $reflectionClass->getParentClass();
+        }
         $properties = $reflectionClass->getProperties();
         $withAnnotation = false;
         foreach ($properties as $refProperty) {
